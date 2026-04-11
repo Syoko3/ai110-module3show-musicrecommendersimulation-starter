@@ -13,7 +13,7 @@ Your goal is to:
 
 Replace this paragraph with your own summary of what your version does.
 
----
+--- 
 
 ## How The System Works
 
@@ -29,7 +29,20 @@ Some prompts to answer:
 
 You can include a simple diagram or bullet list if helpful.
 
----
+--- Each Song includes genre, mood, energy, tempo, valence, danceability, and acousticness. My UserProfile stores a target energy of 0.8, a target valence of 0.5, and the genre is rock. My Recommender computes a score for these three features of each song using the Gaussian proximity function s = e^((-d^2)/(2σ^2)) for energy and valence, and 1.0 or 0.0 for genre. The final score of each song is calculated by the fixed weights S = 0.35 * s_genre ​+ 0.35 * s_energy ​+ 0.30 * s_valence​. I choose which songs to recommend by the sorted list based on scores from higher ones to lower ones.
+--- user_profile = { "favorite_genre": "Rock", "target_energy": 0.8, "target_valence": 0.5, "target_tempo": 75, "target_acousticness": 0.6 }
+
+--- Finalized Algorithm Recipe:
+1. Ask the user for preferred genre, preferred mood, and target energy level between 0 and 1 as the target profile.
+2. Open data/songs.csv and read through every dataset. For each song, calculate a compatibility score by adding up three components.
+  - If song's genre exactly matches the user's preferred genre, then it earns 2.0 points.
+  - If the song's mood matches the user's preferred mood, then it earns an additional 1.0 point.
+  - Measure how close the song's energy is to the user's target using a Gaussian decay curve.
+    - A perfect energy match gives the full 1.0 point, and the score smoothly falls toward zero as the difference grows, so songs that are only slightly off-target are penalized mildly, while very different energy levels are penalized harshly.
+3. Then add all three components together to get a total score out of maximum of 4 points.
+4. After scoring each song, store the result (the song's details alongside its total score) in a temporary list.
+5. After scoring all songs, sort the entire list from highest score to lowest. If two songs are tied on total score, the one with the closer energy match ranks higher.
+6. Take the top 5 songs from the sorted list and return them as the recommendation for the user.
 
 ## Getting Started
 
@@ -53,6 +66,9 @@ pip install -r requirements.txt
 ```bash
 python -m src.main
 ```
+
+Screenshot of the terminal output showing the recommendations:
+![alt text](image.png)
 
 ### Running Tests
 
