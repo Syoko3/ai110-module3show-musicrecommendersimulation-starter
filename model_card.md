@@ -110,4 +110,4 @@ Prompts:
 - Something unexpected or interesting you discovered  
 - How this changed the way you think about music recommendation apps  
 
---- 
+--- I learned about recommender systems that it helps filtering tools for the users' preferred items. I got interested that the recommender systems use the scoring rule to calculate the score based on the provided features of the specific item. For example, I used the Gaussian decay to calculate the energy score of each song. This changed the way I think about music recommendation apps by ranking the songs easily using the scoring logic to calculate the score of each feature for each song, and sorting the songs from higher scores to lower scores.
