@@ -71,30 +71,55 @@ def load_songs(csv_path: str) -> List[Dict]:
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """Calculates a compatibility score and reason list for a song based on user preferences."""
+    # Define weights for easy tuning
+    WEIGHTS = {
+        "genre": 1.0,
+        "mood": 1.0,
+        "energy": 2.0
+    }
+    
     score = 0.0
     reasons = []
 
-    # 1. Genre match
-    if song.get('genre') == user_prefs.get('genre'):
-        score += 2.0
-        reasons.append("Exact genre match (+2.0)")
+    # 1. Genre match (Case-insensitive)
+    target_genre = user_prefs.get('genre', "").lower()
+    song_genre = song.get('genre', "").lower()
+    
+    if target_genre and song_genre == target_genre:
+        score += WEIGHTS["genre"]
+        reasons.append(f"Exact genre match (+{WEIGHTS['genre']})")
 
-    # 2. Mood match
-    if song.get('mood') == user_prefs.get('mood'):
-        score += 1.0
-        reasons.append("Exact mood match (+1.0)")
+    # 2. Mood match (Case-insensitive)
+    target_mood = user_prefs.get('mood', "").lower()
+    song_mood = song.get('mood', "").lower()
+    
+    if target_mood and song_mood == target_mood:
+        score += WEIGHTS["mood"]
+        reasons.append(f"Exact mood match (+{WEIGHTS['mood']})")
 
     # 3. Energy match using Gaussian decay
-    energy_diff = song.get('energy', 0.0) - user_prefs.get('energy', 0.0)
-    # sigma^2 = 0.1 for a smooth decay penalizing large differences harshly
-    energy_score = math.exp(-(energy_diff ** 2) / 0.1)
+    raw_target_energy = user_prefs.get('energy', 0.5)
+    
+    # Fix for 'Boundary Pusher': Clamp energy between 0.0 and 1.0
+    target_energy = max(0.0, min(1.0, raw_target_energy))
+        
+    energy_diff = song.get('energy', 0.0) - target_energy
+    
+    # Gaussian decay: Increased width to 0.2 to better handle sparse data
+    # and prevent 'ignoring' users with mid-range energy preferences.
+    energy_score = WEIGHTS["energy"] * math.exp(-(energy_diff ** 2) / 0.2)
+    
     score += energy_score
-    reasons.append(f"Energy match (+{energy_score:.2f})")
+    
+    if energy_score > 0.1: # Only mention if it's a significant match
+        reasons.append(f"Energy match (+{energy_score:.2f})")
 
     return score, reasons
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """Returns the top k songs sorted by compatibility score and energy proximity."""
+    target_energy = user_prefs.get('energy', 0.5)
+
     scored_songs = [
         (song, score, "; ".join(reasons))
         for song in songs
@@ -105,7 +130,7 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         scored_songs,
         key=lambda item: (
             item[1],
-            -abs(item[0].get('energy', 0.0) - user_prefs.get('energy', 0.0))
+            -abs(item[0].get('energy', 0.0) - target_energy)
         ),
         reverse=True
     )[:k]

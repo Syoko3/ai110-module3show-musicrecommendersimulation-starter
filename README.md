@@ -30,7 +30,7 @@ Some prompts to answer:
 You can include a simple diagram or bullet list if helpful.
 
 --- Each Song includes genre, mood, energy, tempo, valence, danceability, and acousticness. My UserProfile stores a target energy of 0.8, a target valence of 0.5, and the genre is rock. My Recommender computes a score for these three features of each song using the Gaussian proximity function s = e^((-d^2)/(2σ^2)) for energy and valence, and 1.0 or 0.0 for genre. The final score of each song is calculated by the fixed weights S = 0.35 * s_genre ​+ 0.35 * s_energy ​+ 0.30 * s_valence​. I choose which songs to recommend by the sorted list based on scores from higher ones to lower ones.
---- user_profile = { "favorite_genre": "Rock", "target_energy": 0.8, "target_valence": 0.5, "target_tempo": 75, "target_acousticness": 0.6 }
+--- my_user_profile = { "favorite_genre": "Rock", "target_energy": 0.8, "target_valence": 0.5, "target_tempo": 75, "target_acousticness": 0.6 }
 
 --- Finalized Algorithm Recipe:
 1. Ask the user for preferred genre, preferred mood, and target energy level between 0 and 1 as the target profile.
@@ -69,6 +69,18 @@ python -m src.main
 
 Screenshot of the terminal output showing the recommendations:
 ![alt text](image.png)
+Screenshot of High-Energy Pop recommendations:
+![alt text](image-1.png)
+Screenshot of Chill Lofi recommendations:
+![alt text](image-2.png)
+Screenshot of Deep Intense Rock recommendations:
+![alt text](image-3.png)
+Screenshot of Sad Party recommendations:
+![alt text](image-4.png)
+Screenshot of Genre Ghost recommendations:
+![alt text](image-5.png)
+Screenshot of Boundary Pusher recommendations:
+![alt text](image-6.png)
 
 ### Running Tests
 
